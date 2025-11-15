@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robot de Colores</title>
+  <style>
+    body {
+      background-color: #222;
+      color: white;
+      font-family: 'Georgia', serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1, h2 { font-weight: normal; }
+
+    /* --- Pantallas --- */
+    .pantalla { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+
+    input {
+      width: 80%;
+      max-width: 320px;
+      padding: 12px;
+      margin: 10px;
+      border-radius: 8px;
+      border: none;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    button {
+      width: 82%;
+      max-width: 330px;
+      padding: 12px;
+      margin-top: 15px;
+      background-color: #e60000;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    button:hover { filter: brightness(1.3); transform: scale(1.05); }
+
+    /* --- Colores --- */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 180px));
+      grid-gap: 40px;
+    }
+
+    .color-box {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .color-box:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+    }
+
+    .rojo { background-color: red; }
+    .azul { background-color: blue; }
+    .amarillo { background-color: yellow; }
+    .verde { background-color: lime; }
+
+    /* --- Cámara --- */
+.display {
+  width: 85%;
+  max-width: 800px;
+  margin: 50px auto;
+  height: auto;
+  background-color: #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  font-size: 28px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.back-button {
+  display: block;
+  margin: 25px auto;
+  text-align: center;
+  background-color: #555;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.back-button:hover {
+  background-color: #777;
+  transform: scale(1.05);
+}
+
+
+  </style>
+</head>
+<body>
+
+  <!-- Pantalla 1: LOGIN -->
+  {% if pantalla == 1 %}
+  <div class="pantalla" style="display:flex">
+    <h1>Inicio de sesión</h1>
+    <form action="/login" method="POST">
+      <input type="text" name="usuario" placeholder="Nombre de usuario" required>
+      <input type="password" name="clave" placeholder="Contraseña" required>
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- Pantalla 2: SELECCIÓN DE COLOR -->
+  {% if pantalla == 2 %}
+  <div class="pantalla" style="display:flex">
+    <h2>Hola {{ usuario }}, escoge el color a localizar</h2>
+    <form action="/color" method="POST">
+      <input type="hidden" name="usuario" value="{{ usuario }}">
+      <div class="color-grid">
+        <button class="color-box rojo" name="color" value="rojo"></button>
+        <button class="color-box azul" name="color" value="azul"></button>
+        <button class="color-box amarillo" name="color" value="amarillo"></button>
+        <button class="color-box verde" name="color" value="verde"></button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- Pantalla 3: CÁMARA -->
+  {% if pantalla == 3 %}
+  <div class="pantalla" style="display:flex">
+    <div class="display">
+    <div id="videoBox" style="border: 6px solid white; border-radius: 12px; padding: 5px;">
+  <img src="{{ url_for('video_feed') }}?color={{ color }}"
+       alt="Video no disponible" style="width:100%;">
+</div>
+
+<script>
+  // Cambiar color del borde externo según selección
+  const color = "{{ color }}";
+
+  const videoBox = document.getElementById("videoBox");
+  const mapa = {
+    rojo: "red",
+    azul: "blue",
+    amarillo: "yellow",
+    verde: "lime"
+  };
+
+  if (mapa[color]) {
+    videoBox.style.borderColor = mapa[color];
+  }
+</script>
+
+    </div>
+    <p>{{ mensaje }}</p>
+    <button class="back-button" type="button" onclick="history.back()">Regresar</button>
+  </div>
+  {% endif %}
+
+</body>
+</html>
