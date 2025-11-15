@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Error</title>
+  <style>
+    body {
+      background-color: #222;
+      color: white;
+      font-family: 'Georgia', serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    img {
+      width: 250px;
+      margin-bottom: 30px;
+      border-radius: 10px;
+    }
+
+    button {
+      background-color: #e60000;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      filter: brightness(1.3);
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <img src="{{ url_for('static', filename='gato.gif') }}" alt="Error">
+  <h2>¡Contraseña incorrecta!</h2>
+
+  <button onclick="window.location.href='/'">Intentar de nuevo</button>
+
+</body>
+</html>
