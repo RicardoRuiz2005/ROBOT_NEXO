@@ -3,50 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <title>Error</title>
+
+  <!-- CSS NEXO -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='nexo.css') }}">
+
+  <!-- Partículas -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles-engine"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim"></script>
+  <script src="{{ url_for('static', filename='nexo_particles.js') }}" defer></script>
+
   <style>
     body {
-      background-color: #222;
-      color: white;
-      font-family: 'Georgia', serif;
-      text-align: center;
       margin: 0;
       padding: 0;
+      font-family: 'Inter', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    #particles {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .glass {
+      background: rgba(10, 10, 10, 0.65);
+      backdrop-filter: blur(18px);
+      border-radius: 18px;
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 420px;
+      border: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: white;
+      box-shadow: 0 0 25px rgba(255,255,255,0.08);
     }
 
     img {
-      width: 250px;
-      margin-bottom: 30px;
-      border-radius: 10px;
+      width: 200px;
+      margin-bottom: 20px;
+      border-radius: 12px;
     }
 
     button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
       background-color: #e60000;
       color: white;
       border: none;
-      padding: 12px 25px;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: 0.2s;
+      transition: 0.3s;
+      font-size: 16px;
     }
 
     button:hover {
-      filter: brightness(1.3);
       transform: scale(1.05);
+      box-shadow: 0 0 18px rgba(230,0,0,0.7);
     }
   </style>
 </head>
+
 <body>
+  <canvas id="particles"></canvas>
 
-  <img src="{{ url_for('static', filename='gato.gif') }}" alt="Error">
-  <h2>¡Contraseña incorrecta!</h2>
+  <div class="glass">
+    <img src="{{ url_for('static', filename='gato.gif') }}" alt="Error">
+    <h2>Contraseña incorrecta</h2>
 
-  <button onclick="window.location.href='/'">Intentar de nuevo</button>
+    <button onclick="window.location.href='/?retry=1'">
+      Intentar de nuevo
+    </button>
+  </div>
 
 </body>
 </html>
