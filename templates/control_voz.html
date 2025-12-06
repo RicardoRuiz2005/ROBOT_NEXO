@@ -1,0 +1,36 @@
+<!-- control_voz.html: módulo de reconocimiento de voz -->
+
+<script>
+function iniciarReconocimiento() {
+
+  try {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = new SpeechRecognition();
+
+    rec.lang = "es-ES";
+    rec.continuous = false;
+    rec.interimResults = false;
+
+    rec.start();
+
+    rec.onresult = (event) => {
+      let texto = event.results[0][0].transcript.toLowerCase();
+      console.log("Reconocido:", texto);
+
+      // Mapea a botones del index
+      if (texto.includes("rojo")) document.querySelector("button[value='rojo']").click();
+      else if (texto.includes("azul")) document.querySelector("button[value='azul']").click();
+      else if (texto.includes("amarillo")) document.querySelector("button[value='amarillo']").click();
+      else if (texto.includes("verde")) document.querySelector("button[value='verde']").click();
+      else alert("No se reconoció un color válido.");
+    };
+
+    rec.onerror = (event) => {
+      console.log("Error en reconocimiento:", event.error);
+    };
+
+  } catch (e) {
+    alert("Tu navegador no soporta reconocimiento de voz.");
+  }
+}
+</script>
