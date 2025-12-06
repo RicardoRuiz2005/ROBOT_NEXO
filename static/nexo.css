@@ -1,0 +1,42 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #0a0f1c;
+  font-family: 'Outfit', sans-serif;
+  color: white;
+  overflow-x: hidden;
+}
+
+#particles {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+}
+
+.glass {
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 30px;
+}
+
+.btn {
+  background: #2762EA;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 18px rgba(39, 98, 234, 0.7);
+}
+
+body {
+  background: #050505 !important;
+}
