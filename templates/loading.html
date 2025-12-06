@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+#loading-screen {
+  position: fixed;
+  top:0; left:0;
+  width:100vw;
+  height:100vh;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+#loading-video {
+  width:70%;
+  max-width:500px;
+  border-radius:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="loading-screen">
+  <video id="loading-video" autoplay playsinline muted>
+      <source src="{{ url_for('static', filename='NEXOlogo.mp4') }}" type="video/mp4">
+  </video>
+</div>
+
+<script>
+const video = document.getElementById("loading-video");
+
+// 🔊 Activa el audio solo cuando el usuario hace clic (obligatorio en Chrome)
+document.body.addEventListener("click", () => {
+    video.muted = false;
+    video.play();
+}, { once:true });
+
+// Cuando el video termina → ir al login
+video.onended = () => {
+    window.location.href = "/login_page";
+};
+</script>
+
+</body>
+</html>
