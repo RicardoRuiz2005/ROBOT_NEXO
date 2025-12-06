@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba de Voz</title>
+
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding-top: 60px;
+    }
+
+    h1 { font-size: 28px; margin-bottom: 30px; }
+
+    button {
+      padding: 15px 40px;
+      font-size: 18px;
+      border: none;
+      margin: 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .btn-decir { background: #005eff; }
+    .btn-escuchar { background: #c20000; }
+
+    textarea {
+      width: 80%;
+      height: 120px;
+      background-color: #222;
+      color: white;
+      border: 1px solid #555;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 20px;
+      resize: none;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Prueba de Voz</h1>
+
+  <textarea id="textoDecir" placeholder="Escribe algo para que el dispositivo lo diga..."></textarea>
+
+  <button class="btn-decir" onclick="decirTexto()">🔊 Hablar</button>
+  <button class="btn-escuchar" onclick="iniciarReconocimiento()">🎤 Escuchar</button>
+
+  <textarea id="textoEscuchado" placeholder="Aquí aparecerá lo que digas..."></textarea>
+
+  <script>
+    function decir(texto) {
+      const msg = new SpeechSynthesisUtterance(texto);
+      msg.lang = "es-ES";
+      msg.rate = 1;
+      msg.pitch = 1;
+      speechSynthesis.speak(msg);
+    }
+
+    function decirTexto() {
+      let texto = document.getElementById("textoDecir").value.trim();
+      if (!texto) texto = "No hay texto para reproducir.";
+      decir(texto);
+    }
+
+    function iniciarReconocimiento() {
+      try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let rec = new SpeechRecognition();
+
+        rec.lang = "es-ES";
+        rec.continuous = false;
+        rec.interimResults = false;
+
+        rec.start();
+
+        rec.onresult = (event) => {
+          let txt = event.results[0][0].transcript.toLowerCase();
+          document.getElementById("textoEscuchado").value = txt;
+        };
+
+      } catch (e) {
+        alert("Tu navegador no soporta reconocimiento de voz.");
+      }
+    }
+  </script>
+
+</body>
+</html>
