@@ -1,69 +1,134 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Robot de Colores</title>
+
+  <!-- ESTILO NEXO -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='nexo.css') }}">
+
+  <!-- LIBRERÍAS tsparticles -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles-engine"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim"></script>
+
+  <!-- PARTÍCULAS -->
+  <script src="{{ url_for('static', filename='nexo_particles.js') }}" defer></script>
+
   <style>
-    body {
-      background-color: #222;
-      color: white;
-      font-family: 'Georgia', serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
+
+    /* ============================================
+       🔥 FULLSCREEN INTRO (PANTALLA 0)
+    ============================================ */
+    #intro-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
     }
 
-    h1, h2 { font-weight: normal; }
+    #intro-video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;  /* No recorta, no deforma */
+      max-width: 100%;
+      max-height: 100%;
+    }
 
-    /* --- Pantallas --- */
-    .pantalla { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+
+    /* ============================================
+       🔥 PÁGINA NORMAL
+    ============================================ */
+
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+    }
+
+    .pantalla {
+      display: flex !important;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      position: relative;
+      z-index: 5;
+      padding: 20px;
+    }
+
+    .glass {
+      width: 100%;
+      padding: 35px 30px;
+      background: rgba(10, 10, 10, 0.65);
+      backdrop-filter: blur(18px);
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
 
     input {
-      width: 80%;
-      max-width: 320px;
-      padding: 12px;
-      margin: 10px;
-      border-radius: 8px;
+      width: 85%;
+      padding: 14px;
+      margin: 10px auto;
+      border-radius: 10px;
       border: none;
       text-align: center;
       font-size: 16px;
+      display: block;
+      outline: none;
     }
 
     button {
-      width: 82%;
-      max-width: 330px;
-      padding: 12px;
-      margin-top: 15px;
+      width: 70%;
+      padding: 14px;
+      margin: 20px auto 0 auto;
       background-color: #e60000;
       color: white;
       font-size: 16px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
+      transition: 0.3s ease;
+      display: block;
     }
 
-    button:hover { filter: brightness(1.3); transform: scale(1.05); }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 18px rgba(230, 0, 0, 0.7);
+    }
 
-    /* --- Colores --- */
+    .back-button { background-color: #444 !important; }
+
     .color-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(120px, 180px));
-      grid-gap: 40px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 25px;
+      margin-top: 20px;
     }
 
     .color-box {
       width: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: 25px;
+      aspect-ratio: 1/1;
+      border-radius: 20px;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: 0.25s ease;
     }
 
     .color-box:hover {
       transform: scale(1.15);
-      box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
     }
 
     .rojo { background-color: red; }
@@ -71,105 +136,149 @@
     .amarillo { background-color: yellow; }
     .verde { background-color: lime; }
 
-    /* --- Cámara --- */
-.display {
-  width: 85%;
-  max-width: 800px;
-  margin: 50px auto;
-  height: auto;
-  background-color: #aaa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: black;
-  font-size: 28px;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.back-button {
-  display: block;
-  margin: 25px auto;
-  text-align: center;
-  background-color: #555;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.back-button:hover {
-  background-color: #777;
-  transform: scale(1.05);
-}
-
-
   </style>
 </head>
+
+<script>
+let vozBonita = null;
+
+window.speechSynthesis.onvoiceschanged = () => {
+    const voces = speechSynthesis.getVoices();
+    vozBonita = voces.find(v =>
+        v.lang.includes("es") &&
+        (v.name.includes("Female") || v.name.includes("Google") || v.name.includes("Lucia"))
+    ) || voces[0];
+};
+
+function decir(texto) {
+  const msg = new SpeechSynthesisUtterance(texto);
+  msg.voice = vozBonita;
+  msg.rate = 1.05;
+  msg.pitch = 1.15;
+  msg.lang = "es-ES";
+  speechSynthesis.speak(msg);
+}
+</script>
+
+
 <body>
 
-  <!-- Pantalla 1: LOGIN -->
-  {% if pantalla == 1 %}
-  <div class="pantalla" style="display:flex">
+<canvas id="particles"></canvas>
+
+
+<!-- ============================================
+     🔥 PANTALLA 0 — INTRO (Video Fullscreen)
+============================================ -->
+{% if pantalla == 0 %}
+<div id="intro-screen">
+  <video id="intro-video" autoplay playsinline>
+    <source src="{{ url_for('static', filename='NEXOlogo.mp4') }}" type="video/mp4">
+  </video>
+</div>
+
+<script>
+  setTimeout(() => {
+      window.location.href = "/?screen=1";
+  }, 5000);  /* ⬅ Ajusta aquí el tiempo en milisegundos */
+</script>
+{% endif %}
+
+
+
+<!-- ============================================
+     PANTALLA 1 — LOGIN
+============================================ -->
+{% if pantalla == 1 %}
+<div class="pantalla">
+  <div class="glass">
     <h1>Inicio de sesión</h1>
+
     <form action="/login" method="POST">
-      <input type="text" name="usuario" placeholder="Nombre de usuario" required>
+      <input type="text" name="usuario" placeholder="Ingresa tu nombre" required>
       <input type="password" name="clave" placeholder="Contraseña" required>
       <button type="submit">Entrar</button>
     </form>
   </div>
-  {% endif %}
 
-  <!-- Pantalla 2: SELECCIÓN DE COLOR -->
-  {% if pantalla == 2 %}
-  <div class="pantalla" style="display:flex">
+  <script>decir("Introduzca su nombre y contraseña");</script>
+</div>
+{% endif %}
+
+
+
+<!-- ============================================
+     PANTALLA 2 — COLOR
+============================================ -->
+{% if pantalla == 2 %}
+<div class="pantalla">
+  <div class="glass">
     <h2>Hola {{ usuario }}, escoge el color a localizar</h2>
+
     <form action="/color" method="POST">
       <input type="hidden" name="usuario" value="{{ usuario }}">
+
       <div class="color-grid">
         <button class="color-box rojo" name="color" value="rojo"></button>
         <button class="color-box azul" name="color" value="azul"></button>
         <button class="color-box amarillo" name="color" value="amarillo"></button>
         <button class="color-box verde" name="color" value="verde"></button>
       </div>
+
+      <button type="button" onclick="iniciarReconocimiento()">🎤 Decir color</button>
     </form>
   </div>
-  {% endif %}
 
-  <!-- Pantalla 3: CÁMARA -->
-  {% if pantalla == 3 %}
-  <div class="pantalla" style="display:flex">
-    <div class="display">
-    <div id="videoBox" style="border: 6px solid white; border-radius: 12px; padding: 5px;">
-  <img src="{{ url_for('video_feed') }}?color={{ color }}"
-       alt="Video no disponible" style="width:100%;">
+  <script>decir("Hola {{ usuario }}, seleccione un color para localizar");</script>
 </div>
+{% endif %}
 
+
+
+<!-- ============================================
+     PANTALLA 3 — VIDEO STREAM
+============================================ -->
+{% if pantalla == 3 %}
+<div class="pantalla">
+  <div class="glass">
+    <h2>Buscando color: {{ color }}</h2>
+
+    <div id="videoBox" style="border:6px solid white; border-radius:12px; padding:5px; margin-top:20px;">
+      <img src="{{ url_for('video_feed') }}?color={{ color }}" style="width:100%;">
+    </div>
+
+    <p style="margin-top:20px">{{ mensaje }}</p>
+    <button class="back-button" onclick="history.back()">Regresar</button>
+    <button onclick="noPulsar()" style="background:#ff0000; margin-top:15px;">
+       NO PULSAR
+    </button>
+
+  </div>
+
+  <script>decir("Color seleccionado: {{ color }}");</script>
+</div>
+{% endif %}
+
+
+
+<!-- ============================================
+     🔊 TEXTO A VOZ
+============================================ -->
 <script>
-  // Cambiar color del borde externo según selección
-  const color = "{{ color }}";
-
-  const videoBox = document.getElementById("videoBox");
-  const mapa = {
-    rojo: "red",
-    azul: "blue",
-    amarillo: "yellow",
-    verde: "lime"
-  };
-
-  if (mapa[color]) {
-    videoBox.style.borderColor = mapa[color];
-  }
+function decir(texto) {
+  const msg = new SpeechSynthesisUtterance(texto);
+  msg.lang = "es-ES";
+  speechSynthesis.speak(msg);
+}
 </script>
 
-    </div>
-    <p>{{ mensaje }}</p>
-    <button class="back-button" type="button" onclick="history.back()">Regresar</button>
-  </div>
-  {% endif %}
+{% include 'control_voz.html' %}
+
+<script>
+function noPulsar() {
+  fetch("/music_toggle", { method: "POST" });
+}
+</script>
+
 
 </body>
 </html>
